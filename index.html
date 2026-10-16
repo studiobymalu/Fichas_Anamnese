@@ -26,7 +26,7 @@ textarea{min-height:85px;height:auto;resize:vertical}
 select{appearance:auto}
 input[type="radio"]{accent-color:#806a57}
 .section{border:1px solid #c8b9a9;padding:15px;border-radius:8px;margin-top:15px}
-.sectionTitle{font:700 16px Georgia,serif;letter-spacing:1px;margin-bottom:10px}
+.sectionTitle{font:700 16px Georgia,serif;letter-spacing:1px;margin-bottom:10px}.procedureCard{background:#fffaf5}.procedureCard .section{background:#faf7f2}.procedureHeading{font-size:17px}
 .checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .check{display:flex;align-items:flex-start;gap:9px;font-size:14px;line-height:1.3}
 .check input{width:21px;height:21px;min-width:21px;margin:0;accent-color:#806a57}
@@ -53,52 +53,65 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
     <h1>FICHA DE ANAMNESE</h1>
 
     <div class="grid">
-      <div class="field full"><label>NOME COMPLETO *</label><input id="nome" autocomplete="name"></div>
+      <div class="field full"><label>NOME COMPLETO *</label><input id="nome" autocomplete="name" required></div>
       <div class="field"><label>DATA DE NASCIMENTO</label><input id="nascimento" type="date"></div>
-      <div class="field">
-        <label>PROCEDIMENTO</label>
-        <select id="procedimento">
-          <option value="">Selecione o procedimento</option>
-          <option>Design personalizado com Henna</option>
-          <option>Design Tradicional</option>
-          <option>Brow Up</option>
-          <option>Brow Lamination</option>
-          <option>Henna Lips</option>
-          <option>Combo Lábios</option>
-          <option>Vibromassagem Terapêutica</option>
-          <option>SPA Labial</option>
-        </select>
-      </div>
     </div>
 
-    <div id="hennaSection" class="section" style="display:none">
-      <div class="sectionTitle">SOBRANCELHAS — DESIGN PERSONALIZADO COM HENNA</div>
-      <div class="grid">
-        <div class="field full">
-          <label>JÁ UTILIZOU HENNA OU TINTURA NAS SOBRANCELHAS?</label>
-          <div class="checkgrid">
-            <label class="check"><input type="radio" name="jaHennaTintura" value="Sim"><span>Sim</span></label>
-            <label class="check"><input type="radio" name="jaHennaTintura" value="Não"><span>Não</span></label>
+    <div class="section">
+      <div class="sectionTitle">ESCOLHA SEUS PROCEDIMENTOS (ATÉ 3)</div>
+      <div class="small">Escolha pelo menos um procedimento. As perguntas específicas aparecerão separadas para cada escolha.</div>
+      <div id="proceduresContainer"></div>
+    </div>
+
+    <template id="procedureTemplate">
+      <div class="procedureCard section">
+        <div class="sectionTitle procedureHeading">PROCEDIMENTO</div>
+        <div class="field"><label class="procedureLabel">PROCEDIMENTO 1 *</label>
+          <select class="procedureSelect">
+            <option value="">Selecione o procedimento</option>
+            <option>Design personalizado com Henna</option>
+            <option>Design Tradicional</option>
+            <option>Brow Up</option>
+            <option>Brow Lamination</option>
+            <option>Henna Lips</option>
+            <option>Combo Lábios</option>
+            <option>Vibromassagem Terapêutica</option>
+            <option>SPA Labial</option>
+          </select>
+        </div>
+        <div class="procedureQuestions" style="display:none">
+          <div class="section lipQuestions" style="display:none">
+            <div class="sectionTitle">SAÚDE E CUIDADOS DOS LÁBIOS</div>
+            <div class="grid">
+              <div class="field full"><label>Possui histórico de alergia a henna, pigmentos, tinturas de cabelo ou esmaltes?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="alergiaHennaLabios" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="alergiaHennaLabios" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Tem tendência a apresentar herpes labial?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="herpesLabial" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="herpesLabial" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Apresenta alguma lesão, descamação ou ferida ativa nos lábios hoje?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="lesaoLabios" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="lesaoLabios" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Realizou preenchimento labial ou micropigmentação recentemente?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="preenchimentoRecente" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="preenchimentoRecente" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Se sim, há quanto tempo?</label><input type="text" data-field="tempoPreenchimento" placeholder="Informe há quanto tempo"></div>
+              <div class="field full"><label>Está utilizando ácidos na rotina de skincare (ex.: retinol, glicólico)?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="acidosLabios" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="acidosLabios" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Faz uso de Roacutan (isotretinoína) ou fez tratamento nos últimos 6 meses?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="roacutan" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="roacutan" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Possui o hábito de puxar as pelinhas ou morder os lábios com frequência?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="mordeLabios" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="mordeLabios" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Seus lábios costumam ficar muito ressecados no dia a dia?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="labiosRessecados" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="labiosRessecados" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Qual tom de henna/pigmento você prefere?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="tomLabios" value="Rosado suave"><span>Rosado suave</span></label><label class="check"><input type="radio" data-name="tomLabios" value="Rosa avermelhado"><span>Rosa avermelhado</span></label><label class="check"><input type="radio" data-name="tomLabios" value="Vermelho suave"><span>Vermelho suave</span></label><label class="check"><input type="radio" data-name="tomLabios" value="Ainda não sei; quero orientação"><span>Ainda não sei; quero orientação</span></label></div></div>
+              <div class="field full"><label>Qual efeito final deseja para a cor dos lábios?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="efeitoLabios" value="Natural — avermelhado com aspecto saudável"><span>Natural — avermelhado com aspecto saudável</span></label><label class="check"><input type="radio" data-name="efeitoLabios" value="Mais marcado — efeito batom"><span>Mais marcado — efeito batom</span></label><label class="check"><input type="radio" data-name="efeitoLabios" value="Efeito japonês — centro do lábio mais avermelhado"><span>Efeito japonês — centro do lábio mais avermelhado</span></label></div></div>
+              <div class="field full"><label>Observações sobre os lábios</label><textarea data-field="obsLabios" placeholder="Conte algo importante sobre sua saúde ou preferência de cor."></textarea></div>
+            </div>
           </div>
-        </div>
-        <div class="field full">
-          <label>SE SIM, LEMBRA SE HOUVE ALGUMA REAÇÃO?</label>
-          <div class="checkgrid">
-            <label class="check"><input type="radio" name="reacaoHennaTintura" value="Sim"><span>Sim</span></label>
-            <label class="check"><input type="radio" name="reacaoHennaTintura" value="Não"><span>Não</span></label>
-            <label class="check"><input type="radio" name="reacaoHennaTintura" value="Não lembro"><span>Não lembro</span></label>
+          <div class="section browQuestions" style="display:none">
+            <div class="sectionTitle">SOBRANCELHAS</div>
+            <div class="grid">
+              <div class="field full"><label>Já utilizou henna ou tintura nas sobrancelhas?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="jaHennaTintura" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="jaHennaTintura" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Se sim, lembra se houve alguma reação?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="reacaoHennaTintura" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="reacaoHennaTintura" value="Não"><span>Não</span></label><label class="check"><input type="radio" data-name="reacaoHennaTintura" value="Não lembro"><span>Não lembro</span></label></div></div>
+              <div class="field full"><label>Se houve reação, qual?</label><textarea data-field="detalheReacaoHenna" placeholder="Ex.: vermelhidão, coceira, ardência, inchaço."></textarea></div>
+              <div class="field full"><label>Possui atualmente alguma alteração na região das sobrancelhas?</label><div class="checkgrid"><label class="check"><input type="checkbox" data-check="alteracaoSobrancelhas" value="Ferida ou corte"><span>Ferida ou corte</span></label><label class="check"><input type="checkbox" data-check="alteracaoSobrancelhas" value="Acne / inflamação"><span>Acne / inflamação</span></label><label class="check"><input type="checkbox" data-check="alteracaoSobrancelhas" value="Irritação / descamação"><span>Irritação / descamação</span></label><label class="check"><input type="checkbox" data-check="alteracaoSobrancelhas" value="Queda de pelos excessiva"><span>Queda de pelos excessiva</span></label><label class="check"><input type="checkbox" data-check="alteracaoSobrancelhas" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Quando foi seu último design?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="ultimoDesign" value="Menos de 15 dias"><span>Menos de 15 dias</span></label><label class="check"><input type="radio" data-name="ultimoDesign" value="15 a 30 dias"><span>15 a 30 dias</span></label><label class="check"><input type="radio" data-name="ultimoDesign" value="Mais de 30 dias"><span>Mais de 30 dias</span></label><label class="check"><input type="radio" data-name="ultimoDesign" value="Não lembro"><span>Não lembro</span></label></div></div>
+              <div class="field full"><label>Qual resultado deseja para as sobrancelhas?</label><div class="checkgrid"><label class="check"><input type="checkbox" data-check="resultadoDesejado" value="Natural"><span>Natural</span></label><label class="check"><input type="checkbox" data-check="resultadoDesejado" value="Mais definida"><span>Mais definida</span></label><label class="check"><input type="checkbox" data-check="resultadoDesejado" value="Corrigir formato"><span>Corrigir formato</span></label><label class="check"><input type="checkbox" data-check="resultadoDesejado" value="Deixar crescer"><span>Deixar crescer</span></label></div></div>
+              <div class="field full"><label>Observações sobre as sobrancelhas</label><textarea data-field="observacoesSobrancelhas"></textarea></div>
+            </div>
           </div>
-        </div>
-        <div class="field full">
-          <label>SE HOUVE REAÇÃO, QUAL?</label>
-          <textarea id="detalheReacaoHenna" placeholder="Ex.: vermelhidão, coceira, ardência, inchaço ou outra reação."></textarea>
-        </div>
-        <div class="field full">
-          <label>OBSERVAÇÕES SOBRE AS SOBRANCELHAS</label>
-          <textarea id="observacoesSobrancelhas" placeholder="Conte o que considerar importante sobre o histórico ou preferências das sobrancelhas."></textarea>
         </div>
       </div>
-    </div>
+    </template>
 
     <div class="section">
       <div class="sectionTitle">SAÚDE E SEGURANÇA</div>
@@ -120,41 +133,14 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
       </div>
     </div>
 
-    <div id="sobrancelhasSection" class="section" style="display:none">
-      <div class="sectionTitle">SOBRANCELHAS</div>
-      <div class="grid">
-        <div class="field full">
-          <label>POSSUI ATUALMENTE ALGUMA ALTERAÇÃO NA REGIÃO DAS SOBRANCELHAS?</label>
-          <div class="checkgrid">
-            <label class="check"><input type="checkbox" name="alteracaoSobrancelhas" value="Não"> <span>Não</span></label>
-            <label class="check"><input type="checkbox" name="alteracaoSobrancelhas" value="Ferida ou corte"> <span>Ferida ou corte</span></label>
-            <label class="check"><input type="checkbox" name="alteracaoSobrancelhas" value="Acne / inflamação"> <span>Acne / inflamação</span></label>
-            <label class="check"><input type="checkbox" name="alteracaoSobrancelhas" value="Irritação / descamação"> <span>Irritação / descamação</span></label>
-            <label class="check"><input type="checkbox" name="alteracaoSobrancelhas" value="Queda de pelos excessiva"> <span>Queda de pelos excessiva</span></label>
-            <label class="check"><input type="checkbox" name="alteracaoSobrancelhas" value="Outra"> <span>Outra</span></label>
-          </div>
-        </div>
-
-        <div class="field full">
-          <label>QUANDO FOI SEU ÚLTIMO DESIGN?</label>
-          <div class="checkgrid">
-            <label class="check"><input type="radio" name="ultimoDesign" value="Menos de 15 dias"> <span>Menos de 15 dias</span></label>
-            <label class="check"><input type="radio" name="ultimoDesign" value="15 a 30 dias"> <span>15 a 30 dias</span></label>
-            <label class="check"><input type="radio" name="ultimoDesign" value="Mais de 30 dias"> <span>Mais de 30 dias</span></label>
-            <label class="check"><input type="radio" name="ultimoDesign" value="Não lembro"> <span>Não lembro</span></label>
-          </div>
-        </div>
-
-        <div class="field full">
-          <label>QUAL RESULTADO VOCÊ DESEJA?</label>
-          <div class="checkgrid">
-            <label class="check"><input type="checkbox" name="resultadoDesejado" value="Natural"> <span>Natural</span></label>
-            <label class="check"><input type="checkbox" name="resultadoDesejado" value="Mais definida"> <span>Mais definida</span></label>
-            <label class="check"><input type="checkbox" name="resultadoDesejado" value="Corrigir formato"> <span>Corrigir formato</span></label>
-            <label class="check"><input type="checkbox" name="resultadoDesejado" value="Deixar crescer"> <span>Deixar crescer</span></label>
-          </div>
-        </div>
-      </div>
+    <div class="section" style="background:#f4eee6;border-color:#b9a58e">
+      <div class="sectionTitle">COMO ENVIAR SUA FICHA PELO WHATSAPP</div>
+      <ol style="margin:8px 0 0;padding-left:22px;line-height:1.55;font-size:14px">
+        <li>Preencha seus dados e responda às perguntas que aparecerem para cada procedimento escolhido.</li>
+        <li>Marque a autorização para realização do procedimento. A autorização de imagem é opcional.</li>
+        <li>Toque em <b>ENVIAR FICHA</b>. Quando abrir a tela de compartilhamento, escolha o WhatsApp e selecione a conversa do <b>studioby.malu</b>.</li>
+        <li>Confira se o arquivo PDF está anexado à mensagem e toque em enviar. Se o celular baixar/abrir o PDF primeiro, use o botão Compartilhar e escolha WhatsApp.</li>
+      </ol>
     </div>
 
     <div class="consent">
@@ -190,15 +176,40 @@ const dataFichaAutomatica=dataLocalHoje();
 function val(id){return (document.getElementById(id)?.value||"").trim()}
 function checked(id){return !!document.getElementById(id)?.checked}
 function radioValue(name){return document.querySelector('input[name="'+name+'"]:checked')?.value||""}
-function atualizarPerguntasHenna(){
-  const procedimento=val("procedimento");
-  const ehHenna=procedimento==="Design personalizado com Henna";
-  const ehSobrancelha=ehHenna || procedimento==="Design Tradicional" || procedimento==="Brow Up" || procedimento==="Brow Lamination";
-  document.getElementById("hennaSection").style.display=ehHenna?"block":"none";
-  document.getElementById("sobrancelhasSection").style.display=ehSobrancelha?"block":"none";
+const procedureNames=["procedimento1","procedimento2","procedimento3"];
+const container=document.getElementById("proceduresContainer");
+function setupProcedureCard(card,index){
+  const select=card.querySelector(".procedureSelect");select.id=procedureNames[index];
+  card.querySelector(".procedureLabel").textContent=`PROCEDIMENTO ${index+1}${index===0?" *":" (OPCIONAL)"}`;
+  card.querySelector(".procedureHeading").textContent=`PROCEDIMENTO ${index+1}`;
+  card.querySelectorAll("[data-name]").forEach(el=>el.name=`${el.dataset.name}_${index+1}`);
+  card.querySelectorAll("[data-field]").forEach(el=>el.id=`${el.dataset.field}_${index+1}`);
+  card.querySelectorAll("[data-check]").forEach(el=>el.name=`${el.dataset.check}_${index+1}`);
+  select.addEventListener("change",()=>{
+    const v=select.value;const questions=card.querySelector(".procedureQuestions");
+    const lips=["Henna Lips","Combo Lábios"].includes(v);
+    const brows=["Design personalizado com Henna","Design Tradicional","Brow Up","Brow Lamination"].includes(v);
+    card.querySelector(".lipQuestions").style.display=lips?"block":"none";
+    card.querySelector(".browQuestions").style.display=brows?"block":"none";
+    questions.style.display=(lips||brows)?"block":"none";
+    // Evita duplicar o mesmo procedimento em mais de um campo.
+    procedureNames.forEach((id,i)=>{if(i!==index&&val(id)===v&&v){select.value="";questions.style.display="none";card.querySelector(".lipQuestions").style.display="none";card.querySelector(".browQuestions").style.display="none";alert("Cada procedimento pode ser escolhido apenas uma vez.");}});
+  });
 }
-document.getElementById("procedimento").addEventListener("change",atualizarPerguntasHenna);
-atualizarPerguntasHenna();
+const template=document.getElementById("procedureTemplate");
+for(let i=0;i<3;i++){const card=template.content.firstElementChild.cloneNode(true);setupProcedureCard(card,i);container.appendChild(card);}
+function readRadioIn(card,key){return card.querySelector(`[data-name="${key}"]:checked`)?.value||"Não informado"}
+function readFieldIn(card,key){return card.querySelector(`[data-field="${key}"]`)?.value?.trim()||"Não informado"}
+function readChecksIn(card,key){return [...card.querySelectorAll(`[data-check="${key}"]:checked`)].map(e=>e.value).join(", ")||"Não informado"}
+function collectProcedures(){
+ return [...container.querySelectorAll(".procedureCard")].map((card,i)=>{
+  const procedimento=card.querySelector(".procedureSelect").value;if(!procedimento)return null;
+  const d={numero:i+1,procedimento};
+  if(["Henna Lips","Combo Lábios"].includes(procedimento))Object.assign(d,{alergiaHennaLabios:readRadioIn(card,"alergiaHennaLabios"),herpesLabial:readRadioIn(card,"herpesLabial"),lesaoLabios:readRadioIn(card,"lesaoLabios"),preenchimentoRecente:readRadioIn(card,"preenchimentoRecente"),tempoPreenchimento:readFieldIn(card,"tempoPreenchimento"),acidosLabios:readRadioIn(card,"acidosLabios"),roacutan:readRadioIn(card,"roacutan"),mordeLabios:readRadioIn(card,"mordeLabios"),labiosRessecados:readRadioIn(card,"labiosRessecados"),tomLabios:readRadioIn(card,"tomLabios"),efeitoLabios:readRadioIn(card,"efeitoLabios"),obsLabios:readFieldIn(card,"obsLabios")});
+  if(["Design personalizado com Henna","Design Tradicional","Brow Up","Brow Lamination"].includes(procedimento))Object.assign(d,{jaHennaTintura:readRadioIn(card,"jaHennaTintura"),reacaoHennaTintura:readRadioIn(card,"reacaoHennaTintura"),detalheReacaoHenna:readFieldIn(card,"detalheReacaoHenna"),alteracaoSobrancelhas:readChecksIn(card,"alteracaoSobrancelhas"),ultimoDesign:readRadioIn(card,"ultimoDesign"),resultadoDesejado:readChecksIn(card,"resultadoDesejado"),observacoesSobrancelhas:readFieldIn(card,"observacoesSobrancelhas")});
+  return d;
+ }).filter(Boolean);
+}
 function escPdf(s){
   const codes={"á":0xE1,"à":0xE0,"â":0xE2,"ã":0xE3,"ä":0xE4,"é":0xE9,"è":0xE8,"ê":0xEA,"ë":0xEB,"í":0xED,"ì":0xEC,"î":0xEE,"ï":0xEF,"ó":0xF3,"ò":0xF2,"ô":0xF4,"õ":0xF5,"ö":0xF6,"ú":0xFA,"ù":0xF9,"û":0xFB,"ü":0xFC,"ç":0xE7,"Á":0xC1,"À":0xC0,"Â":0xC2,"Ã":0xC3,"É":0xC9,"Ê":0xCA,"Í":0xCD,"Ó":0xD3,"Ô":0xD4,"Õ":0xD5,"Ú":0xDA,"Ç":0xC7,"º":0xBA,"ª":0xAA,"—":0x97,"–":0x96,"•":0x95};
   let out=String(s??"").replace(/[\u0080-\uFFFF]/g,ch=>codes[ch]!==undefined?String.fromCharCode(codes[ch]):"?");
@@ -224,13 +235,15 @@ function makePdf(d){
     c+=pdfText("DATA:",465,758,9,true)+pdfText(d.data||"—",500,758,9);
     c+="0.23 0.17 0.14 rg 35 705 525 25 re f\n0.98 0.97 0.95 rg "+pdfText("FICHA DE ANAMNESE",48,714,12,true);
     let y=680;
-    const section=t=>{c+="0.18 0.13 0.10 rg "+pdfText(t,45,y,11,true);y-=19;};
-    const row=(k,v)=>{c+=pdfText(k+":",45,y,8.5,true);const ls=wrapLines(v||"—",66);c+=pdfText(ls[0],150,y,8.5);y-=13;for(let i=1;i<ls.length;i++){c+=pdfText(ls[i],150,y,8.5);y-=11;}};
-    section("DADOS DA CLIENTE");row("Nascimento",d.nascimento);row("Procedimento",d.procedimento);y-=4;
-    const ehHenna=d.procedimento==="Design personalizado com Henna";
-    const ehSob=ehHenna||d.procedimento==="Design Tradicional"||d.procedimento==="Brow Up"||d.procedimento==="Brow Lamination";
-    if(ehHenna){section("SOBRANCELHAS — DESIGN PERSONALIZADO COM HENNA");row("Já usou henna/tintura",d.jaHennaTintura);row("Lembra de reação",d.reacaoHennaTintura);row("Qual reação",d.detalheReacaoHenna);row("Observações",d.observacoesSobrancelhas);y-=3;}
-    if(ehSob){section("SOBRANCELHAS");row("Alterações na região",(d.alteracaoSobrancelhas||[]).join(", "));row("Último design",d.ultimoDesign);row("Resultado desejado",(d.resultadoDesejado||[]).join(", "));y-=3;}
+    const section=t=>{c+="0.18 0.13 0.10 rg "+pdfText(t,45,y,8.2,true);y-=11;} ;
+    const row=(k,v)=>{c+=pdfText(k+":",45,y,7.1,true);const ls=wrapLines(v||"—",82);c+=pdfText(ls[0],190,y,7.1);y-=9;for(let i=1;i<ls.length;i++){c+=pdfText(ls[i],190,y,7.1);y-=8;}};
+    section("DADOS DA CLIENTE");row("Nascimento",d.nascimento);y-=3;
+    for(const proc of d.procedimentos){
+      section(`PROCEDIMENTO ${proc.numero}: ${proc.procedimento}`);y-=1;
+      if(proc.alergiaHennaLabios!==undefined){row("Alergia henna/pigmento/tinturas/esmaltes",proc.alergiaHennaLabios);row("Tendência a herpes labial",proc.herpesLabial);row("Lesão/descamação/ferida ativa",proc.lesaoLabios);row("Preenchimento/micropigmentação recente",proc.preenchimentoRecente);row("Tempo desde procedimento",proc.tempoPreenchimento);row("Uso de ácidos",proc.acidosLabios);row("Roacutan/últimos 6 meses",proc.roacutan);row("Morde/puxa pelinhas",proc.mordeLabios);row("Lábios ressecados",proc.labiosRessecados);row("Tom desejado",proc.tomLabios);row("Efeito desejado",proc.efeitoLabios);row("Observações dos lábios",proc.obsLabios);}
+      if(proc.jaHennaTintura!==undefined){row("Já usou henna/tintura",proc.jaHennaTintura);row("Lembra de reação",proc.reacaoHennaTintura);row("Qual reação",proc.detalheReacaoHenna);row("Alterações nas sobrancelhas",proc.alteracaoSobrancelhas);row("Último design",proc.ultimoDesign);row("Resultado desejado",proc.resultadoDesejado);row("Observações das sobrancelhas",proc.observacoesSobrancelhas);}
+      y-=3;
+    }
     section("SAÚDE E SEGURANÇA");for(const [k,v] of d.saudeItens){c+=pdfText((v?"[X] ":"[ ] ")+k,50,y,8.5);y-=13;}
     y-=2;section("INFORMAÇÕES DE SAÚDE / ALERGIAS");for(const l of wrapLines(d.saude||"Nenhuma informação adicional.",88)){c+=pdfText(l,50,y,8);y-=11;}
     y-=3;section("OUTRAS INFORMAÇÕES");for(const l of wrapLines(d.obs||"—",88)){c+=pdfText(l,50,y,8);y-=11;}
@@ -288,12 +301,10 @@ function makePdf(d){
   return new Blob(chunks,{type:"application/pdf"});
 }
 function collect(){
-  const alteracaoSobrancelhas=[...document.querySelectorAll('input[name="alteracaoSobrancelhas"]:checked')].map(e=>e.value);
-  const resultadoDesejado=[...document.querySelectorAll('input[name="resultadoDesejado"]:checked')].map(e=>e.value);
   const itens=[["Diabetes",checked("diabetes")],["Hipertensão",checked("hipertensao")],["Gestante / amamentando",checked("gestante")],["Pele sensível / reativa",checked("peleSensivel")],["Dermatite / eczema",checked("dermatite")],["Herpes na região",checked("herpes")],["Uso de medicação",checked("medicacao")],["Tratamento dermatológico",checked("tratamento")],["Alergia conhecida",checked("alergia")],["Procedimento recente na região",checked("procedimentoAnterior")]];
-  return {nome:val("nome"),nascimento:val("nascimento"),data:dataFichaAutomatica,procedimento:val("procedimento"),saude:val("saude"),obs:val("observacoes"),jaHennaTintura:radioValue("jaHennaTintura"),reacaoHennaTintura:radioValue("reacaoHennaTintura"),detalheReacaoHenna:val("detalheReacaoHenna"),observacoesSobrancelhas:val("observacoesSobrancelhas"),alteracaoSobrancelhas,ultimoDesign:radioValue("ultimoDesign"),resultadoDesejado,autorizou:checked("autorizacao"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens};
+  return {nome:val("nome"),nascimento:val("nascimento")||"Não informado",data:dataFichaAutomatica,procedimentos:collectProcedures(),saude:val("saude"),obs:val("observacoes"),autorizou:checked("autorizacao"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens};
 }
-function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nAutorização de imagem: ${d.autorizou?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
+function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nProcedimentos: ${d.procedimentos.map(p=>p.procedimento).join(", ")}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nAutorização de imagem: ${d.autorizou?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
 async function compartilharOuBaixar(blob,d){
   const file=new File([blob],`Ficha_${(d.nome||"cliente").replace(/[^a-zA-Z0-9À-ÿ]+/g,"_")}_studioby.malu.pdf`,{type:"application/pdf"});
   const msg=mensagem(d);
@@ -306,6 +317,7 @@ async function compartilharOuBaixar(blob,d){
 document.getElementById("enviar").addEventListener("click",async()=>{
   const btn=document.getElementById("enviar"),status=document.getElementById("status"),d=collect();
   if(!d.nome){alert("Por favor, preencha o nome completo antes de enviar.");document.getElementById("nome").focus();return;}
+  if(!d.procedimentos.length){alert("Selecione pelo menos um procedimento.");document.getElementById("procedimento1").focus();return;}
   if(!checked("autorizacaoProcedimento")){alert("Para enviar a ficha, confirme a autorização para realização do procedimento e a veracidade das informações.");document.getElementById("autorizacaoProcedimento").focus();return;}
   btn.disabled=true;btn.textContent="GERANDO PDF...";
   try{lastPdfBlob=makePdf(d);const result=await compartilharOuBaixar(lastPdfBlob,d);status.style.display="block";status.textContent=result==="shared"?"Ficha pronta. Escolha o WhatsApp no compartilhamento.":result==="ios"?"PDF gerado. O iPhone abriu o PDF; toque em compartilhar e escolha o WhatsApp.":"PDF gerado e baixado. Anexe o PDF à conversa do WhatsApp.";}catch(e){console.error(e);status.style.display="block";status.textContent="Não foi possível gerar o PDF. Atualize a página e tente novamente.";}finally{btn.disabled=false;btn.textContent="ENVIAR FICHA";}
