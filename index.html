@@ -264,10 +264,11 @@ function makePdf(d){
   const img=dataUrlBytes(PROFESSIONAL_JPG);
   const imgObj=add({type:"image",data:img});
   let p2="0.86 0.79 0.70 RG 1.2 w 28 28 539 786 re S\n0.18 0.13 0.10 rg "+pdfText("studioby.malu",220,790,20,true);
-  p2+="0.18 0.13 0.10 rg "+pdfText("AVALIAÇÃO PROFISSIONAL",45,755,18,true)+pdfText(d.nome||"—",560,755,8);
-  p2+="0.86 0.79 0.70 RG 0.5 w 45 742 m 550 742 l S\n";
-  p2+="0.18 0.13 0.10 rg "+pdfText("CARACTERÍSTICAS",45,725,11,true);
-  let my=703;const pairs=[["ES — Espaço entre sobrancelhas","EG — Espaço entre glândulas"],["AI — Altura inicial","AC — Altura central"],["AF — Altura final","PI — Ponto inicial"],["PA — Ponto alto","PF — Ponto final"],["Cor da Henna","Espessura das sobrancelhas"],["Formato dos olhos","Tipo de pele"]];
+  p2+="0.18 0.13 0.10 rg "+pdfText("AVALIAÇÃO PROFISSIONAL",45,755,18,true);
+  p2+=pdfText("CLIENTE:",45,736,8,true)+pdfText(d.nome||"—",88,736,8);
+  p2+="0.86 0.79 0.70 RG 0.5 w 45 722 m 550 722 l S\n";
+  p2+="0.18 0.13 0.10 rg "+pdfText("CARACTERÍSTICAS",45,705,11,true);
+  let my=683;const pairs=[["ES — Espaço entre sobrancelhas","EG — Espaço entre glândulas"],["AI — Altura inicial","AC — Altura central"],["AF — Altura final","PI — Ponto inicial"],["PA — Ponto alto","PF — Ponto final"],["Cor da Henna","Espessura das sobrancelhas"],["Formato dos olhos","Tipo de pele"]];
   for(const [a,b] of pairs){p2+=pdfText(a,45,my,7.5,true)+pdfText(b,315,my,7.5,true);p2+="0.78 0.72 0.67 RG 0.4 w 45  " +(my-3)+" m 285 "+(my-3)+" l S 315 "+(my-3)+" m 550 "+(my-3)+" l S\n";my-=18;}
   function checks(title,opts,y){p2+="0.18 0.13 0.10 rg "+pdfText(title,45,y,9.5,true);y-=12;for(let i=0;i<opts.length;i++){const col=i%2,row=Math.floor(i/2);const x=45+col*252,yy=y-row*14;p2+="0.70 0.62 0.54 RG 0.5 w "+x+" "+(yy-3)+" 8 8 re S\n"+pdfText(opts[i],x+13,yy,7.8); }return y-Math.ceil(opts.length/2)*14-8;}
   my-=2;my=checks("FORMATO DO ROSTO — ASSINALE:",["Oval","Redondo","Alongado","Quadrado","Triangular","Diamante"],my);
