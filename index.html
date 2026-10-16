@@ -159,14 +159,20 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
 
     <div class="consent">
       <div class="consentRow">
-        <input type="checkbox" id="autorizacao">
-        <label for="autorizacao" class="consentText">
-          <strong>☐ AUTORIZAÇÃO DE USO DE IMAGEM</strong>
-          Autorizo o registro e o uso de imagens e gravações realizadas durante o atendimento para fins de divulgação do trabalho do <b>studioby.malu</b>.
-          Declaro também que as informações fornecidas nesta ficha são verdadeiras e assumo responsabilidade pelas respostas relacionadas à minha saúde e alergias.
+        <input type="checkbox" id="autorizacaoProcedimento" required>
+        <label for="autorizacaoProcedimento" class="consentText">
+          <strong>AUTORIZAÇÃO PARA REALIZAÇÃO DO PROCEDIMENTO *</strong>
+          Autorizo a realização do procedimento selecionado nesta ficha. Declaro que respondi com sinceridade às perguntas e informei todas as condições de saúde, alergias, medicamentos e reações de que tenho conhecimento.
         </label>
       </div>
-      <div class="small">Marque o quadradinho somente se autorizar o uso da imagem. A ficha pode ser enviada mesmo sem essa autorização, ao enviar a ficha você declara que todas as informações solicitadas são verdadeiras..</div>
+      <div class="consentRow" style="margin-top:12px">
+        <input type="checkbox" id="autorizacao">
+        <label for="autorizacao" class="consentText">
+          <strong>AUTORIZAÇÃO DE USO DE IMAGEM (OPCIONAL)</strong>
+          Autorizo o registro e o uso de imagens e gravações realizadas durante o atendimento para fins de divulgação do trabalho do <b>studioby.malu</b>.
+        </label>
+      </div>
+      <div class="small">A autorização para o procedimento é obrigatória para enviar a ficha. A autorização de uso de imagem é opcional; se não marcar, o PDF registrará que o uso de imagem não foi autorizado.</div>
     </div>
 
     <div class="actions">
@@ -184,6 +190,15 @@ const dataFichaAutomatica=dataLocalHoje();
 function val(id){return (document.getElementById(id)?.value||"").trim()}
 function checked(id){return !!document.getElementById(id)?.checked}
 function radioValue(name){return document.querySelector('input[name="'+name+'"]:checked')?.value||""}
+function atualizarPerguntasHenna(){
+  const procedimento=val("procedimento");
+  const ehHenna=procedimento==="Design personalizado com Henna";
+  const ehSobrancelha=ehHenna || procedimento==="Design Tradicional" || procedimento==="Brow Up" || procedimento==="Brow Lamination";
+  document.getElementById("hennaSection").style.display=ehHenna?"block":"none";
+  document.getElementById("sobrancelhasSection").style.display=ehSobrancelha?"block":"none";
+}
+document.getElementById("procedimento").addEventListener("change",atualizarPerguntasHenna);
+atualizarPerguntasHenna();
 function escPdf(s){
   const codes={"á":0xE1,"à":0xE0,"â":0xE2,"ã":0xE3,"ä":0xE4,"é":0xE9,"è":0xE8,"ê":0xEA,"ë":0xEB,"í":0xED,"ì":0xEC,"î":0xEE,"ï":0xEF,"ó":0xF3,"ò":0xF2,"ô":0xF4,"õ":0xF5,"ö":0xF6,"ú":0xFA,"ù":0xF9,"û":0xFB,"ü":0xFC,"ç":0xE7,"Á":0xC1,"À":0xC0,"Â":0xC2,"Ã":0xC3,"É":0xC9,"Ê":0xCA,"Í":0xCD,"Ó":0xD3,"Ô":0xD4,"Õ":0xD5,"Ú":0xDA,"Ç":0xC7,"º":0xBA,"ª":0xAA,"—":0x97,"–":0x96,"•":0x95};
   let out=String(s??"").replace(/[\u0080-\uFFFF]/g,ch=>codes[ch]!==undefined?String.fromCharCode(codes[ch]):"?");
@@ -220,8 +235,14 @@ function makePdf(d){
     y-=2;section("INFORMAÇÕES DE SAÚDE / ALERGIAS");for(const l of wrapLines(d.saude||"Nenhuma informação adicional.",88)){c+=pdfText(l,50,y,8);y-=11;}
     y-=3;section("OUTRAS INFORMAÇÕES");for(const l of wrapLines(d.obs||"—",88)){c+=pdfText(l,50,y,8);y-=11;}
     y-=5; c+="0.95 0.92 0.88 rg 40 75 515 85 re f"; c+="0.18 0.13 0.10 rg "+pdfText("AUTORIZAÇÕES",50,145,10,true);
-    const auth=d.autorizou?"AUTORIZADO O USO DE IMAGEM E GRAVACAO PARA FINS DE DIVULGACAO. CLIENTE DECLARA CIENCIA DAS INFORMACOES DE SAUDE E ALERGIAS.":"CLIENTE NÃO AUTORIZOU O USO DA IMAGEM MAS ACUSA PLENA CIENCIA DE POSSUIR RESPONSABILIDADE PELAS RESPOSTAS REFERENTE A SAÚDE E ALERGIAS.";
-    let ay=128;for(const l of wrapLines(auth,82)){c+=pdfText(l,50,ay,7.2,true);ay-=10;}
+    const authProc=d.autorizouProcedimento
+      ? "AUTORIZAÇÃO PARA PROCEDIMENTO: CLIENTE AUTORIZOU A REALIZAÇÃO DO PROCEDIMENTO E DECLARA QUE AS INFORMAÇÕES DE SAÚDE E ALERGIAS FORNECIDAS SÃO VERDADEIRAS."
+      : "AUTORIZAÇÃO PARA PROCEDIMENTO: NÃO CONFIRMADA. FICHA NÃO DEVERIA SER FINALIZADA.";
+    const authImagem=d.autorizou
+      ? "USO DE IMAGEM: AUTORIZADO PARA FINS DE DIVULGAÇÃO DO STUDIOBY.MALU."
+      : "CLIENTE NÃO AUTORIZOU O USO DA IMAGEM MAS ACUSA PLENA CIENCIA DE POSSUIR RESPONSABILIDADE PELAS RESPOSTAS REFERENTE A SAÚDE E ALERGIAS.";
+    let ay=128;for(const l of wrapLines(authProc,82)){c+=pdfText(l,50,ay,7.2,true);ay-=9;}
+    ay-=2;for(const l of wrapLines(authImagem,82)){c+=pdfText(l,50,ay,7.2,true);ay-=9;}
     return c;
   }
   const stream1=page1();
@@ -240,7 +261,7 @@ function makePdf(d){
   my=checks("TIPO DE SOBRANCELHA — ATUAL:",["Reta","Levemente ascendente","Arco suave","Arco médio","Arco alto","S shape","Arredondada","Arco arredondado"],my);
   my=checks("TIPO DE SOBRANCELHA — INDICADO:",["Reta","Levemente ascendente","Arco suave","Arco médio","Arco alto","S shape","Arredondada","Arco arredondado"],my);
   p2+="0.18 0.13 0.10 rg "+pdfText("PONTOS DE MARCAÇÃO",45,my,10,true);my-=8;
-  p2+=`q 160 0 0 95 217 ${my-95} cm /Im1 Do Q\n`;my-=108;
+  my-=12;
   p2+="0.18 0.13 0.10 rg "+pdfText("OBSERVAÇÕES PROFISSIONAIS",45,my,10,true);my-=12;for(let i=0;i<4;i++){p2+="0.78 0.72 0.67 RG 0.4 w 45 "+my+" m 550 "+my+" l S\n";my-=18;}
   const content2=add({type:"stream",data:p2});
   const page2Obj=add({type:"page2",content:content2,image:imgObj});
@@ -270,9 +291,9 @@ function collect(){
   const alteracaoSobrancelhas=[...document.querySelectorAll('input[name="alteracaoSobrancelhas"]:checked')].map(e=>e.value);
   const resultadoDesejado=[...document.querySelectorAll('input[name="resultadoDesejado"]:checked')].map(e=>e.value);
   const itens=[["Diabetes",checked("diabetes")],["Hipertensão",checked("hipertensao")],["Gestante / amamentando",checked("gestante")],["Pele sensível / reativa",checked("peleSensivel")],["Dermatite / eczema",checked("dermatite")],["Herpes na região",checked("herpes")],["Uso de medicação",checked("medicacao")],["Tratamento dermatológico",checked("tratamento")],["Alergia conhecida",checked("alergia")],["Procedimento recente na região",checked("procedimentoAnterior")]];
-  return {nome:val("nome"),nascimento:val("nascimento"),data:dataFichaAutomatica,procedimento:val("procedimento"),saude:val("saude"),obs:val("observacoes"),jaHennaTintura:radioValue("jaHennaTintura"),reacaoHennaTintura:radioValue("reacaoHennaTintura"),detalheReacaoHenna:val("detalheReacaoHenna"),observacoesSobrancelhas:val("observacoesSobrancelhas"),alteracaoSobrancelhas,ultimoDesign:radioValue("ultimoDesign"),resultadoDesejado,autorizou:checked("autorizacao"),saudeItens:itens};
+  return {nome:val("nome"),nascimento:val("nascimento"),data:dataFichaAutomatica,procedimento:val("procedimento"),saude:val("saude"),obs:val("observacoes"),jaHennaTintura:radioValue("jaHennaTintura"),reacaoHennaTintura:radioValue("reacaoHennaTintura"),detalheReacaoHenna:val("detalheReacaoHenna"),observacoesSobrancelhas:val("observacoesSobrancelhas"),alteracaoSobrancelhas,ultimoDesign:radioValue("ultimoDesign"),resultadoDesejado,autorizou:checked("autorizacao"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens};
 }
-function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização de imagem: ${d.autorizou?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
+function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nAutorização de imagem: ${d.autorizou?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
 async function compartilharOuBaixar(blob,d){
   const file=new File([blob],`Ficha_${(d.nome||"cliente").replace(/[^a-zA-Z0-9À-ÿ]+/g,"_")}_studioby.malu.pdf`,{type:"application/pdf"});
   const msg=mensagem(d);
@@ -285,7 +306,7 @@ async function compartilharOuBaixar(blob,d){
 document.getElementById("enviar").addEventListener("click",async()=>{
   const btn=document.getElementById("enviar"),status=document.getElementById("status"),d=collect();
   if(!d.nome){alert("Por favor, preencha o nome completo antes de enviar.");document.getElementById("nome").focus();return;}
-  if(!checked("autorizacao")){alert("Para enviar a ficha, marque o quadradinho de autorização/ciência antes de finalizar.");document.getElementById("autorizacao").focus();return;}
+  if(!checked("autorizacaoProcedimento")){alert("Para enviar a ficha, confirme a autorização para realização do procedimento e a veracidade das informações.");document.getElementById("autorizacaoProcedimento").focus();return;}
   btn.disabled=true;btn.textContent="GERANDO PDF...";
   try{lastPdfBlob=makePdf(d);const result=await compartilharOuBaixar(lastPdfBlob,d);status.style.display="block";status.textContent=result==="shared"?"Ficha pronta. Escolha o WhatsApp no compartilhamento.":result==="ios"?"PDF gerado. O iPhone abriu o PDF; toque em compartilhar e escolha o WhatsApp.":"PDF gerado e baixado. Anexe o PDF à conversa do WhatsApp.";}catch(e){console.error(e);status.style.display="block";status.textContent="Não foi possível gerar o PDF. Atualize a página e tente novamente.";}finally{btn.disabled=false;btn.textContent="ENVIAR FICHA";}
 });
