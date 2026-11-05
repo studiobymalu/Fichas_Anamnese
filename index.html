@@ -155,21 +155,24 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
     </div>
 
     <div class="consent">
+      <div class="sectionTitle">AUTORIZAÇÕES — MARQUE CADA OPÇÃO SEPARADAMENTE</div>
       <div class="consentRow">
         <input type="checkbox" id="autorizacaoProcedimento" required>
-        <label for="autorizacaoProcedimento" class="consentText">
-          <strong>AUTORIZAÇÃO PARA REALIZAÇÃO DO PROCEDIMENTO *</strong>
-          Autorizo a realização do procedimento selecionado nesta ficha. Declaro que respondi com sinceridade às perguntas e informei todas as condições de saúde, alergias, medicamentos e reações de que tenho conhecimento.
-        </label>
+        <label for="autorizacaoProcedimento" class="consentText"><strong>1. AUTORIZAÇÃO PARA REALIZAÇÃO DO PROCEDIMENTO *</strong>Autorizo a realização do(s) procedimento(s) selecionado(s) nesta ficha. Declaro que respondi com sinceridade às perguntas e informei as condições de saúde, alergias, medicamentos e reações de que tenho conhecimento.</label>
       </div>
       <div class="consentRow" style="margin-top:12px">
-        <input type="checkbox" id="autorizacao">
-        <label for="autorizacao" class="consentText">
-          <strong>AUTORIZAÇÃO DE USO DE IMAGEM (OPCIONAL)</strong>
-          Autorizo o registro e o uso de imagens e gravações realizadas durante o atendimento para fins de divulgação do trabalho do <b>studioby.malu</b>.
-        </label>
+        <input type="checkbox" id="autorizacaoRegistroImagem">
+        <label for="autorizacaoRegistroImagem" class="consentText"><strong>2. REGISTRO DE FOTOS/VÍDEOS PARA PRONTUÁRIO (OPCIONAL)</strong>Autorizo fotografias e/ou vídeos da região atendida exclusivamente para registro interno, acompanhamento da evolução e composição do meu prontuário. Este registro não autoriza divulgação.</label>
       </div>
-      <div class="small">A autorização para o procedimento é obrigatória para enviar a ficha. A autorização de uso de imagem é opcional; se não marcar, o PDF registrará que o uso de imagem não foi autorizado.</div>
+      <div class="consentRow" style="margin-top:12px">
+        <input type="checkbox" id="autorizacaoDivulgacaoSemRosto">
+        <label for="autorizacaoDivulgacaoSemRosto" class="consentText"><strong>3. DIVULGAÇÃO DE IMAGENS SEM IDENTIFICAÇÃO DO ROSTO (OPCIONAL)</strong>Autorizo o uso de fotos/vídeos apenas da região do procedimento, sem mostrar meu rosto ou outros elementos que permitam minha identificação, para portfólio e divulgação do studioby.malu.</label>
+      </div>
+      <div class="consentRow" style="margin-top:12px">
+        <input type="checkbox" id="autorizacaoDivulgacaoComRosto">
+        <label for="autorizacaoDivulgacaoComRosto" class="consentText"><strong>4. DIVULGAÇÃO DE IMAGENS COM MEU ROSTO/IDENTIFICAÇÃO (OPCIONAL)</strong>Autorizo o uso de fotos/vídeos em que meu rosto ou minha identidade possam ser reconhecidos, para portfólio e divulgação do studioby.malu.</label>
+      </div>
+      <div class="small">As opções 2, 3 e 4 são independentes e opcionais. Você pode autorizar uma e recusar as demais. Não autorizar imagens não impede a realização do procedimento. A opção 1 é necessária para enviar a ficha.</div>
     </div>
 
     <div class="actions">
@@ -241,86 +244,103 @@ function makePdf(d){
   add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
   add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
 
-  function page1(){
-    let c="0.86 0.79 0.70 RG 1.2 w 28 28 539 786 re S\n";
+  // Página(s) de anamnese com fluxo automático e quebra de página.
+  const dataStreams=[]; let c="", y=0;
+  const top=770, bottom=58;
+  function startDataPage(continuation=false){
+    c="0.86 0.79 0.70 RG 1.2 w 28 28 539 786 re S\n";
     c+="0.18 0.13 0.10 rg "+pdfText("studioby.malu",220,790,20,true);
     c+="0.94 0.90 0.85 rg 35 735 525 42 re f\n";
-    c+="0.18 0.13 0.10 rg "+pdfText("NOME DA CLIENTE:",48,758,9,true)+pdfText(d.nome||"—",150,758,14);
-    c+=pdfText("DATA:",465,758,9,true)+pdfText(d.data||"—",500,758,9);
-    c+="0.23 0.17 0.14 rg 35 705 525 25 re f\n0.98 0.97 0.95 rg "+pdfText("FICHA DE ANAMNESE",48,714,12,true);
-    let y=680;
-    const section=t=>{c+="0.18 0.13 0.10 rg "+pdfText(t,45,y,8.2,true);y-=11;} ;
-    const row=(k,v)=>{c+=pdfText(k+":",45,y,7.1,true);const ls=wrapLines(v||"—",82);c+=pdfText(ls[0],190,y,7.1);y-=9;for(let i=1;i<ls.length;i++){c+=pdfText(ls[i],190,y,7.1);y-=8;}};
-    section("DADOS DA CLIENTE");row("Nascimento",d.nascimento);y-=3;
-    for(const proc of d.procedimentos){
-      section(`PROCEDIMENTO ${proc.numero}: ${proc.procedimento}`);y-=1;
-      if(proc.alergiaHennaLabios!==undefined){row("Alergia henna/pigmento/tinturas/esmaltes",proc.alergiaHennaLabios);row("Tendência a herpes labial",proc.herpesLabial);row("Lesão/descamação/ferida ativa",proc.lesaoLabios);row("Preenchimento/micropigmentação recente",proc.preenchimentoRecente);row("Tempo desde procedimento",proc.tempoPreenchimento);row("Uso de ácidos",proc.acidosLabios);row("Roacutan/últimos 6 meses",proc.roacutan);row("Morde/puxa pelinhas",proc.mordeLabios);row("Lábios ressecados",proc.labiosRessecados);row("Efeito desejado",proc.efeitoLabios);row("Observações dos lábios",proc.obsLabios);}
-      if(proc.alteracaoSobrancelhas!==undefined){if(proc.procedimento==="Brow Up"){row("Procedimento invasivo na região",proc.procedimentoInvasivoBrow);row("Micropigmentação ou remoção a laser",proc.microOuLaserBrow);row("Tempo desde micropigmentação/laser",proc.tempoMicroOuLaserBrow);}else{row("Já usou henna/tintura",proc.jaHennaTintura);row("Lembra de reação",proc.reacaoHennaTintura);row("Qual reação",proc.detalheReacaoHenna);}row("Alterações nas sobrancelhas",proc.alteracaoSobrancelhas);if(proc.procedimento==="Brow Up"){row("ANÁLISE TRICOLÓGICA — densidade anterior",proc.historicoDensidadeBrow);row("Queda em outras áreas",proc.quedaOutrasAreasBrow);row("Hábito de pinçar",proc.pinçaExcessivaBrow);}row("Facilidade para queloides/cicatrizes hipertróficas",proc.queloidesBrow);row("Observações das sobrancelhas",proc.observacoesSobrancelhas);}
-      y-=3;
-    }
-    section("SAÚDE E SEGURANÇA");for(const [k,v] of d.saudeItens){c+=pdfText((v?"[X] ":"[ ] ")+k,50,y,8.5);y-=13;}
-    y-=2;row("Aspirina/anticoagulantes/anti-inflamatórios nos últimos dias",d.medicamentosRecentes);
-    y-=2;section("INFORMAÇÕES DE SAÚDE / ALERGIAS");for(const l of wrapLines(d.saude||"Nenhuma informação adicional.",88)){c+=pdfText(l,50,y,8);y-=11;}
-    y-=3;section("OUTRAS INFORMAÇÕES");for(const l of wrapLines(d.obs||"—",88)){c+=pdfText(l,50,y,8);y-=11;}
-    y-=5; c+="0.95 0.92 0.88 rg 40 75 515 85 re f"; c+="0.18 0.13 0.10 rg "+pdfText("AUTORIZAÇÕES",50,145,10,true);
-    const authProc=d.autorizouProcedimento
-      ? "AUTORIZAÇÃO PARA PROCEDIMENTO: CLIENTE AUTORIZOU A REALIZAÇÃO DO PROCEDIMENTO E DECLARA QUE AS INFORMAÇÕES DE SAÚDE E ALERGIAS FORNECIDAS SÃO VERDADEIRAS."
-      : "AUTORIZAÇÃO PARA PROCEDIMENTO: NÃO CONFIRMADA. FICHA NÃO DEVERIA SER FINALIZADA.";
-    const authImagem=d.autorizou
-      ? "USO DE IMAGEM: AUTORIZADO PARA FINS DE DIVULGAÇÃO DO STUDIOBY.MALU."
-      : "CLIENTE NÃO AUTORIZOU O USO DA IMAGEM MAS ACUSA PLENA CIENCIA DE POSSUIR RESPONSABILIDADE PELAS RESPOSTAS REFERENTE A SAÚDE E ALERGIAS.";
-    let ay=128;for(const l of wrapLines(authProc,82)){c+=pdfText(l,50,ay,7.2,true);ay-=9;}
-    ay-=2;for(const l of wrapLines(authImagem,82)){c+=pdfText(l,50,ay,7.2,true);ay-=9;}
-    return c;
+    c+="0.18 0.13 0.10 rg "+pdfText(continuation?"FICHA DE ANAMNESE — CONTINUAÇÃO":"FICHA DE ANAMNESE",48,751,13,true);
+    c+=pdfText("CLIENTE: "+(d.nome||"—"),48,739,8,true)+pdfText("DATA: "+(d.data||"—"),430,739,8,true);
+    y=715;
   }
-  const stream1=page1();
-  const content1=add({type:"stream",data:stream1});
-  const page1Obj=add({type:"page",content:content1});
-  const img=dataUrlBytes(PROFESSIONAL_JPG);
-  const imgObj=add({type:"image",data:img});
+  function finishDataPage(){ dataStreams.push(c); }
+  function ensure(h){ if(y-h<bottom){finishDataPage();startDataPage(true);} }
+  function section(t){ensure(25);c+="0.18 0.13 0.10 rg "+pdfText(t,45,y,9,true);y-=15;}
+  function row(k,v){
+    const labelLines=wrapLines(k,92), valueLines=wrapLines(v||"Não informado",92);
+    ensure((labelLines.length+valueLines.length)*10+8);
+    for(const line of labelLines){c+=pdfText(line,45,y,7.3,true);y-=9;}
+    for(const line of valueLines){c+=pdfText(line,55,y,7.5);y-=10;}
+    y-=3;
+  }
+  function paragraph(v){const lines=wrapLines(v||"—",105);ensure(lines.length*10+4);for(const line of lines){c+=pdfText(line,50,y,7.6);y-=10;}y-=3;}
+  startDataPage(false);
+  section("DADOS DA CLIENTE"); row("Nascimento",d.nascimento);
+  for(const proc of d.procedimentos){
+    section(`PROCEDIMENTO ${proc.numero}: ${proc.procedimento}`);
+    if(proc.alergiaHennaLabios!==undefined){
+      row("Alergia a henna/pigmentos/tinturas/esmaltes",proc.alergiaHennaLabios);row("Tendência a herpes labial",proc.herpesLabial);row("Lesão/descamação/ferida ativa",proc.lesaoLabios);row("Preenchimento/micropigmentação recente",proc.preenchimentoRecente);row("Tempo desde procedimento",proc.tempoPreenchimento);row("Uso de ácidos",proc.acidosLabios);row("Roacutan/últimos 6 meses",proc.roacutan);row("Morde/puxa pelinhas",proc.mordeLabios);row("Lábios ressecados",proc.labiosRessecados);row("Efeito desejado",proc.efeitoLabios);row("Observações dos lábios",proc.obsLabios);
+    }
+    if(proc.alteracaoSobrancelhas!==undefined){
+      if(proc.procedimento==="Brow Up"){row("Procedimento invasivo na região",proc.procedimentoInvasivoBrow);row("Micropigmentação ou remoção a laser",proc.microOuLaserBrow);row("Tempo desde micropigmentação/laser",proc.tempoMicroOuLaserBrow);}
+      else{row("Já usou henna/tintura",proc.jaHennaTintura);row("Lembra de reação",proc.reacaoHennaTintura);row("Qual reação",proc.detalheReacaoHenna);}
+      row("Alterações nas sobrancelhas",proc.alteracaoSobrancelhas);
+      if(proc.procedimento==="Brow Up"){row("Análise tricológica — densidade anterior",proc.historicoDensidadeBrow);row("Queda em outras áreas",proc.quedaOutrasAreasBrow);row("Hábito de pinçar",proc.pinçaExcessivaBrow);}
+      row("Facilidade para queloides/cicatrizes hipertróficas",proc.queloidesBrow);row("Observações das sobrancelhas",proc.observacoesSobrancelhas);
+    }
+  }
+  section("SAÚDE E SEGURANÇA");
+  for(const [k,v] of d.saudeItens){ensure(14);c+=pdfText((v?"[X] ":"[ ] ")+k,50,y,8);y-=12;}
+  row("Aspirina/anticoagulantes/anti-inflamatórios nos últimos dias",d.medicamentosRecentes);
+  section("INFORMAÇÕES DE SAÚDE / ALERGIAS");paragraph(d.saude||"Nenhuma informação adicional.");
+  section("OUTRAS INFORMAÇÕES");paragraph(d.obs||"—");
+  section("AUTORIZAÇÕES — REGISTRO INDIVIDUAL DAS ESCOLHAS");
+  const authRows=[
+    ["1. Realização do(s) procedimento(s)",d.autorizouProcedimento,"Autorizo a execução do(s) procedimento(s) selecionado(s) e declaro verdadeiras as informações de saúde fornecidas."],
+    ["2. Fotos/vídeos para prontuário interno",d.autorizouRegistroImagem,"Registro interno e acompanhamento. Não permite divulgação."],
+    ["3. Divulgação sem identificação do rosto",d.autorizouDivulgacaoSemRosto,"Uso de imagens apenas da região atendida, sem identificação, para portfólio/divulgação."],
+    ["4. Divulgação com rosto/identificação",d.autorizouDivulgacaoComRosto,"Uso de imagens em que a cliente possa ser reconhecida, para portfólio/divulgação."]
+  ];
+  for(const [titulo,ok,desc] of authRows){
+    const lines=wrapLines(desc,91);ensure(25+lines.length*9);
+    c+=pdfText((ok?"[X] AUTORIZADO — ":"[ ] NÃO AUTORIZADO — ")+titulo,50,y,7.5,true);y-=10;
+    for(const line of lines){c+=pdfText(line,62,y,7);y-=9;}y-=4;
+  }
+  finishDataPage();
+  const dataPageObjs=[];
+  for(const stream of dataStreams){const content=add({type:"stream",data:stream});dataPageObjs.push(add({type:"page",content}));}
+
+  const img=dataUrlBytes(PROFESSIONAL_JPG);const imgObj=add({type:"image",data:img});
   let p2="0.86 0.79 0.70 RG 1.2 w 28 28 539 786 re S\n0.18 0.13 0.10 rg "+pdfText("studioby.malu",220,790,20,true);
   p2+="0.18 0.13 0.10 rg "+pdfText("AVALIAÇÃO PROFISSIONAL",45,755,18,true);
   p2+=pdfText("CLIENTE:",45,736,8,true)+pdfText(d.nome||"—",88,736,8);
   p2+="0.86 0.79 0.70 RG 0.5 w 45 722 m 550 722 l S\n";
   p2+="0.18 0.13 0.10 rg "+pdfText("CARACTERÍSTICAS",45,705,11,true);
   let my=683;const pairs=[["ES — Espaço entre sobrancelhas","EG — Espaço entre glândulas"],["AI — Altura inicial","AC — Altura central"],["AF — Altura final","PI — Ponto inicial"],["PA — Ponto alto","PF — Ponto final"],["Cor da Henna","Espessura das sobrancelhas"],["Formato dos olhos","Tipo de pele"]];
-  for(const [a,b] of pairs){p2+=pdfText(a,45,my,7.5,true)+pdfText(b,315,my,7.5,true);p2+="0.78 0.72 0.67 RG 0.4 w 45  " +(my-3)+" m 285 "+(my-3)+" l S 315 "+(my-3)+" m 550 "+(my-3)+" l S\n";my-=18;}
-  function checks(title,opts,y){p2+="0.18 0.13 0.10 rg "+pdfText(title,45,y,9.5,true);y-=12;for(let i=0;i<opts.length;i++){const col=i%2,row=Math.floor(i/2);const x=45+col*252,yy=y-row*14;p2+="0.70 0.62 0.54 RG 0.5 w "+x+" "+(yy-3)+" 8 8 re S\n"+pdfText(opts[i],x+13,yy,7.8); }return y-Math.ceil(opts.length/2)*14-8;}
+  for(const [a,b] of pairs){p2+=pdfText(a,45,my,7.5,true)+pdfText(b,315,my,7.5,true);p2+="0.78 0.72 0.67 RG 0.4 w 45 "+(my-3)+" m 285 "+(my-3)+" l S 315 "+(my-3)+" m 550 "+(my-3)+" l S\n";my-=18;}
+  function checks(title,opts,y){p2+="0.18 0.13 0.10 rg "+pdfText(title,45,y,9.5,true);y-=12;for(let i=0;i<opts.length;i++){const col=i%2,row=Math.floor(i/2);const x=45+col*252,yy=y-row*14;p2+="0.70 0.62 0.54 RG 0.5 w "+x+" "+(yy-3)+" 8 8 re S\n"+pdfText(opts[i],x+13,yy,7.8);}return y-Math.ceil(opts.length/2)*14-8;}
   my-=2;my=checks("FORMATO DO ROSTO — ASSINALE:",["Oval","Redondo","Alongado","Quadrado","Triangular","Diamante"],my);
   my=checks("TIPO DE SOBRANCELHA — ATUAL:",["Reta","Levemente ascendente","Arco suave","Arco médio","Arco alto","S shape","Arredondada","Arco arredondado"],my);
   my=checks("TIPO DE SOBRANCELHA — INDICADO:",["Reta","Levemente ascendente","Arco suave","Arco médio","Arco alto","S shape","Arredondada","Arco arredondado"],my);
-  p2+="0.18 0.13 0.10 rg "+pdfText("PONTOS DE MARCAÇÃO",45,my,10,true);my-=8;
-  my-=12;
+  p2+="0.18 0.13 0.10 rg "+pdfText("PONTOS DE MARCAÇÃO",45,my,10,true);my-=20;
   p2+="0.18 0.13 0.10 rg "+pdfText("OBSERVAÇÕES PROFISSIONAIS",45,my,10,true);my-=12;for(let i=0;i<4;i++){p2+="0.78 0.72 0.67 RG 0.4 w 45 "+my+" m 550 "+my+" l S\n";my-=18;}
-  const content2=add({type:"stream",data:p2});
-  const page2Obj=add({type:"page2",content:content2,image:imgObj});
-  objects[1]=`<< /Type /Pages /Kids [${page1Obj} 0 R ${page2Obj} 0 R] /Count 2 >>`;
+  const content2=add({type:"stream",data:p2});const page2Obj=add({type:"page2",content:content2,image:imgObj});
+  const allPages=[...dataPageObjs,page2Obj];
+  objects[1]=`<< /Type /Pages /Kids [${allPages.map(n=>n+" 0 R").join(" ")}] /Count ${allPages.length} >>`;
 
   const chunks=[];let pos=0;const offsets=[0];
   function pushBytes(b){chunks.push(b);pos+=b.length;}
   pushBytes(new TextEncoder().encode("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n"));
   for(let i=1;i<=objects.length;i++){
-    offsets[i]=pos;const o=objects[i-1];
-    let body="";
-    if(o.type==="stream"){
-      const b=bytesOfText(o.data);body=`<< /Length ${b.length} >>\nstream\n`;pushBytes(bytesOfText(`${i} 0 obj\n${body}`));pushBytes(b);pushBytes(bytesOfText("\nendstream\nendobj\n"));continue;
-    }
-    if(o.type==="image"){
-      body=`<< /Type /XObject /Subtype /Image /Width 1024 /Height 1536 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${o.data.length} >>\nstream\n`;pushBytes(bytesOfText(`${i} 0 obj\n${body}`));pushBytes(o.data);pushBytes(bytesOfText("\nendstream\nendobj\n"));continue;
-    }
-    if(o.type==="page") body=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents ${o.content} 0 R >>`;
-    else if(o.type==="page2") body=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> /XObject << /Im1 ${o.image} 0 R >> >> /Contents ${o.content} 0 R >>`;
+    offsets[i]=pos;const o=objects[i-1];let body="";
+    if(o.type==="stream"){const b=bytesOfText(o.data);body=`<< /Length ${b.length} >>\nstream\n`;pushBytes(bytesOfText(`${i} 0 obj\n${body}`));pushBytes(b);pushBytes(bytesOfText("\nendstream\nendobj\n"));continue;}
+    if(o.type==="image"){body=`<< /Type /XObject /Subtype /Image /Width 1024 /Height 1536 /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${o.data.length} >>\nstream\n`;pushBytes(bytesOfText(`${i} 0 obj\n${body}`));pushBytes(o.data);pushBytes(bytesOfText("\nendstream\nendobj\n"));continue;}
+    if(o.type==="page")body=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> >> /Contents ${o.content} 0 R >>`;
+    else if(o.type==="page2")body=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /Helvetica 3 0 R /Helvetica-Bold 4 0 R >> /XObject << /Im1 ${o.image} 0 R >> >> /Contents ${o.content} 0 R >>`;
     else body=o;
     pushBytes(bytesOfText(`${i} 0 obj\n${body}\nendobj\n`));
   }
   const xref=pos;let x=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;for(let i=1;i<=objects.length;i++)x+=String(offsets[i]).padStart(10,"0")+" 00000 n \n";x+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;pushBytes(bytesOfText(x));
   return new Blob(chunks,{type:"application/pdf"});
 }
+
 function collect(){
   const itens=[["Diabetes",checked("diabetes")],["Hipertensão",checked("hipertensao")],["Gestante / amamentando",checked("gestante")],["Pele sensível / reativa",checked("peleSensivel")],["Dermatite / eczema",checked("dermatite")],["Herpes na região",checked("herpes")],["Uso de medicação",checked("medicacao")],["Tratamento dermatológico",checked("tratamento")],["Alergia conhecida",checked("alergia")],["Procedimento recente na região",checked("procedimentoAnterior")],["Doença autoimune",checked("doencaAutoimune")],["Tratamento oncológico",checked("tratamentoOncologico")],["Uso de imunossupressores",checked("imunossupressores")],["Medicação para tireoide ou hormônios",checked("medicacaoTireoideHormonal")]];
-  return {nome:val("nome"),nascimento:val("nascimento")||"Não informado",data:dataFichaAutomatica,procedimentos:collectProcedures(),saude:val("saude"),obs:val("observacoes"),autorizou:checked("autorizacao"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens,medicamentosRecentes:radioValue("medicamentosRecentes")||"Não informado"};
+  return {nome:val("nome"),nascimento:val("nascimento")||"Não informado",data:dataFichaAutomatica,procedimentos:collectProcedures(),saude:val("saude"),obs:val("observacoes"),autorizouRegistroImagem:checked("autorizacaoRegistroImagem"),autorizouDivulgacaoSemRosto:checked("autorizacaoDivulgacaoSemRosto"),autorizouDivulgacaoComRosto:checked("autorizacaoDivulgacaoComRosto"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens,medicamentosRecentes:radioValue("medicamentosRecentes")||"Não informado"};
 }
-function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nProcedimentos: ${d.procedimentos.map(p=>p.procedimento).join(", ")}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nAutorização de imagem: ${d.autorizou?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
+function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nProcedimentos: ${d.procedimentos.map(p=>p.procedimento).join(", ")}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nRegistro para prontuário: ${d.autorizouRegistroImagem?"AUTORIZADO":"NÃO AUTORIZADO"}.\nDivulgação sem rosto: ${d.autorizouDivulgacaoSemRosto?"AUTORIZADA":"NÃO AUTORIZADA"}.\nDivulgação com rosto: ${d.autorizouDivulgacaoComRosto?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
 async function compartilharOuBaixar(blob,d){
   const file=new File([blob],`Ficha_${(d.nome||"cliente").replace(/[^a-zA-Z0-9À-ÿ]+/g,"_")}_studioby.malu.pdf`,{type:"application/pdf"});
   const msg=mensagem(d);
