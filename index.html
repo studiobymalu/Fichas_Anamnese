@@ -148,31 +148,23 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
       <div class="sectionTitle">COMO ENVIAR SUA FICHA PELO WHATSAPP</div>
       <ol style="margin:8px 0 0;padding-left:22px;line-height:1.55;font-size:14px">
         <li>Preencha seus dados e responda às perguntas que aparecerem para cada procedimento escolhido.</li>
-        <li>Marque a autorização para realização do procedimento. A autorização de imagem é opcional.</li>
+        <li>Marque a autorização para realização do procedimento. A autorização para uso de imagem para fins comerciais é opcional.</li>
         <li>Toque em <b>ENVIAR FICHA</b>. Quando abrir a tela de compartilhamento, escolha o WhatsApp e selecione a conversa do <b>studioby.malu</b>.</li>
         <li>Confira se o arquivo PDF está anexado à mensagem e toque em enviar. Se o celular baixar/abrir o PDF primeiro, use o botão Compartilhar e escolha WhatsApp.</li>
       </ol>
     </div>
 
     <div class="consent">
-      <div class="sectionTitle">AUTORIZAÇÕES — MARQUE CADA OPÇÃO SEPARADAMENTE</div>
+      <div class="sectionTitle">AUTORIZAÇÕES</div>
       <div class="consentRow">
         <input type="checkbox" id="autorizacaoProcedimento" required>
-        <label for="autorizacaoProcedimento" class="consentText"><strong>1. AUTORIZAÇÃO PARA REALIZAÇÃO DO PROCEDIMENTO *</strong>Autorizo a realização do(s) procedimento(s) selecionado(s) nesta ficha. Declaro que respondi com sinceridade às perguntas e informei as condições de saúde, alergias, medicamentos e reações de que tenho conhecimento.</label>
+        <label for="autorizacaoProcedimento" class="consentText"><strong>1. AUTORIZAÇÃO PARA REALIZAÇÃO DO PROCEDIMENTO *</strong>Autorizo a realização do(s) procedimento(s) selecionado(s) nesta ficha. Declaro que respondi com sinceridade às perguntas e informei todas as condições de saúde, alergias, medicamentos e reações de que tenho conhecimento. Estou ciente de que devo comunicar qualquer informação relevante antes da realização do procedimento.</label>
       </div>
       <div class="consentRow" style="margin-top:12px">
-        <input type="checkbox" id="autorizacaoRegistroImagem">
-        <label for="autorizacaoRegistroImagem" class="consentText"><strong>2. REGISTRO DE FOTOS/VÍDEOS PARA PRONTUÁRIO (OPCIONAL)</strong>Autorizo fotografias e/ou vídeos da região atendida exclusivamente para registro interno, acompanhamento da evolução e composição do meu prontuário. Este registro não autoriza divulgação.</label>
+        <input type="checkbox" id="autorizacaoUsoImagem">
+        <label for="autorizacaoUsoImagem" class="consentText"><strong>2. AUTORIZAÇÃO PARA USO DE IMAGEM PARA FINS COMERCIAIS (OPCIONAL)</strong>Autorizo o studioby.malu a captar e utilizar fotografias e/ou vídeos feitos durante ou após o procedimento para fins comerciais e de divulgação do trabalho, incluindo portfólio, redes sociais (como Instagram), materiais publicitários e promocionais. Esta autorização abrange imagens da região atendida e, quando aparecer, do meu rosto ou de elementos que possam me identificar.</label>
       </div>
-      <div class="consentRow" style="margin-top:12px">
-        <input type="checkbox" id="autorizacaoDivulgacaoSemRosto">
-        <label for="autorizacaoDivulgacaoSemRosto" class="consentText"><strong>3. DIVULGAÇÃO DE IMAGENS SEM IDENTIFICAÇÃO DO ROSTO (OPCIONAL)</strong>Autorizo o uso de fotos/vídeos apenas da região do procedimento, sem mostrar meu rosto ou outros elementos que permitam minha identificação, para portfólio e divulgação do studioby.malu.</label>
-      </div>
-      <div class="consentRow" style="margin-top:12px">
-        <input type="checkbox" id="autorizacaoDivulgacaoComRosto">
-        <label for="autorizacaoDivulgacaoComRosto" class="consentText"><strong>4. DIVULGAÇÃO DE IMAGENS COM MEU ROSTO/IDENTIFICAÇÃO (OPCIONAL)</strong>Autorizo o uso de fotos/vídeos em que meu rosto ou minha identidade possam ser reconhecidos, para portfólio e divulgação do studioby.malu.</label>
-      </div>
-      <div class="small">As opções 2, 3 e 4 são independentes e opcionais. Você pode autorizar uma e recusar as demais. Não autorizar imagens não impede a realização do procedimento. A opção 1 é necessária para enviar a ficha.</div>
+      <div class="small">A autorização para uso de imagem é opcional. Posso não autorizá-la sem qualquer prejuízo ou impedimento à realização do procedimento. A opção 1 é obrigatória para enviar a ficha.</div>
     </div>
 
     <div class="actions">
@@ -286,12 +278,10 @@ function makePdf(d){
   row("Aspirina/anticoagulantes/anti-inflamatórios nos últimos dias",d.medicamentosRecentes);
   section("INFORMAÇÕES DE SAÚDE / ALERGIAS");paragraph(d.saude||"Nenhuma informação adicional.");
   section("OUTRAS INFORMAÇÕES");paragraph(d.obs||"—");
-  section("AUTORIZAÇÕES — REGISTRO INDIVIDUAL DAS ESCOLHAS");
+  section("AUTORIZAÇÕES");
   const authRows=[
     ["1. Realização do(s) procedimento(s)",d.autorizouProcedimento,"Autorizo a execução do(s) procedimento(s) selecionado(s) e declaro verdadeiras as informações de saúde fornecidas."],
-    ["2. Fotos/vídeos para prontuário interno",d.autorizouRegistroImagem,"Registro interno e acompanhamento. Não permite divulgação."],
-    ["3. Divulgação sem identificação do rosto",d.autorizouDivulgacaoSemRosto,"Uso de imagens apenas da região atendida, sem identificação, para portfólio/divulgação."],
-    ["4. Divulgação com rosto/identificação",d.autorizouDivulgacaoComRosto,"Uso de imagens em que a cliente possa ser reconhecida, para portfólio/divulgação."]
+    ["2. Uso de imagem para fins comerciais",d.autorizouUsoImagem,"Autorizo a captação e utilização de fotos/vídeos para portfólio, redes sociais, materiais publicitários e promocionais, com ou sem identificação do rosto."]
   ];
   for(const [titulo,ok,desc] of authRows){
     const lines=wrapLines(desc,91);ensure(25+lines.length*9);
@@ -338,9 +328,9 @@ function makePdf(d){
 
 function collect(){
   const itens=[["Diabetes",checked("diabetes")],["Hipertensão",checked("hipertensao")],["Gestante / amamentando",checked("gestante")],["Pele sensível / reativa",checked("peleSensivel")],["Dermatite / eczema",checked("dermatite")],["Herpes na região",checked("herpes")],["Uso de medicação",checked("medicacao")],["Tratamento dermatológico",checked("tratamento")],["Alergia conhecida",checked("alergia")],["Procedimento recente na região",checked("procedimentoAnterior")],["Doença autoimune",checked("doencaAutoimune")],["Tratamento oncológico",checked("tratamentoOncologico")],["Uso de imunossupressores",checked("imunossupressores")],["Medicação para tireoide ou hormônios",checked("medicacaoTireoideHormonal")]];
-  return {nome:val("nome"),nascimento:val("nascimento")||"Não informado",data:dataFichaAutomatica,procedimentos:collectProcedures(),saude:val("saude"),obs:val("observacoes"),autorizouRegistroImagem:checked("autorizacaoRegistroImagem"),autorizouDivulgacaoSemRosto:checked("autorizacaoDivulgacaoSemRosto"),autorizouDivulgacaoComRosto:checked("autorizacaoDivulgacaoComRosto"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens,medicamentosRecentes:radioValue("medicamentosRecentes")||"Não informado"};
+  return {nome:val("nome"),nascimento:val("nascimento")||"Não informado",data:dataFichaAutomatica,procedimentos:collectProcedures(),saude:val("saude"),obs:val("observacoes"),autorizouUsoImagem:checked("autorizacaoUsoImagem"),autorizouProcedimento:checked("autorizacaoProcedimento"),saudeItens:itens,medicamentosRecentes:radioValue("medicamentosRecentes")||"Não informado"};
 }
-function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nProcedimentos: ${d.procedimentos.map(p=>p.procedimento).join(", ")}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nRegistro para prontuário: ${d.autorizouRegistroImagem?"AUTORIZADO":"NÃO AUTORIZADO"}.\nDivulgação sem rosto: ${d.autorizouDivulgacaoSemRosto?"AUTORIZADA":"NÃO AUTORIZADA"}.\nDivulgação com rosto: ${d.autorizouDivulgacaoComRosto?"AUTORIZADA":"NÃO AUTORIZADA"}.`;}
+function mensagem(d){return `Olá! Aqui é o studioby.malu.\n\nFicha de anamnese da cliente: ${d.nome}.\nProcedimentos: ${d.procedimentos.map(p=>p.procedimento).join(", ")}.\nPDF da ficha preenchida segue em anexo.\n\nAutorização para procedimento: ${d.autorizouProcedimento?"AUTORIZADA":"NÃO CONFIRMADA"}.\nUso de imagem para fins comerciais: ${d.autorizouUsoImagem?"AUTORIZADO":"NÃO AUTORIZADO"}.`;}
 async function compartilharOuBaixar(blob,d){
   const file=new File([blob],`Ficha_${(d.nome||"cliente").replace(/[^a-zA-Z0-9À-ÿ]+/g,"_")}_studioby.malu.pdf`,{type:"application/pdf"});
   const msg=mensagem(d);
