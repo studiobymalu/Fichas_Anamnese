@@ -348,7 +348,12 @@ async function compartilharOuBaixar(blob,d){
   const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
   const url=URL.createObjectURL(blob);
   if(isIOS){window.open(url,"_blank");return "ios";}
-  const a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);return "download";
+  // Em navegadores de computador, o compartilhamento nativo de arquivo + texto
+  // não está disponível. Abre o WhatsApp com a mensagem preenchida e baixa o PDF.
+  // Por segurança, o anexo ainda precisa ser selecionado manualmente no WhatsApp.
+  const whatsappUrl="https://wa.me/5519998767539?text="+encodeURIComponent(msg);
+  window.open(whatsappUrl,"_blank");
+  const a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);return "download_whatsapp";
 }
 document.getElementById("enviar").addEventListener("click",async()=>{
   const btn=document.getElementById("enviar"),status=document.getElementById("status"),d=collect();
@@ -356,7 +361,7 @@ document.getElementById("enviar").addEventListener("click",async()=>{
   if(!d.procedimentos.length){alert("Selecione pelo menos um procedimento.");document.getElementById("procedimento1").focus();return;}
   if(!checked("autorizacaoProcedimento")){alert("Para enviar a ficha, confirme a autorização para realização do procedimento e a veracidade das informações.");document.getElementById("autorizacaoProcedimento").focus();return;}
   btn.disabled=true;btn.textContent="GERANDO PDF...";
-  try{lastPdfBlob=makePdf(d);const result=await compartilharOuBaixar(lastPdfBlob,d);status.style.display="block";status.textContent=result==="shared"?"Ficha pronta. Escolha o WhatsApp no compartilhamento.":result==="ios"?"PDF gerado. O iPhone abriu o PDF; toque em compartilhar e escolha o WhatsApp.":"PDF gerado e baixado. Anexe o PDF à conversa do WhatsApp.";}catch(e){console.error(e);status.style.display="block";status.textContent="Não foi possível gerar o PDF. Atualize a página e tente novamente.";}finally{btn.disabled=false;btn.textContent="ENVIAR FICHA";}
+  try{lastPdfBlob=makePdf(d);const result=await compartilharOuBaixar(lastPdfBlob,d);status.style.display="block";status.textContent=result==="shared"?"Ficha pronta. Escolha o WhatsApp no compartilhamento.":result==="ios"?"PDF gerado. O iPhone abriu o PDF; toque em compartilhar e escolha o WhatsApp.":result==="download_whatsapp"?"Mensagem preparada no WhatsApp e PDF baixado. No WhatsApp, confira o texto, anexe o PDF baixado e envie.":"PDF gerado e baixado. Anexe o PDF à conversa do WhatsApp.";}catch(e){console.error(e);status.style.display="block";status.textContent="Não foi possível gerar o PDF. Atualize a página e tente novamente.";}finally{btn.disabled=false;btn.textContent="ENVIAR FICHA";}
 });
 </script>
 </body>
