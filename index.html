@@ -70,9 +70,10 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
           <select class="procedureSelect">
             <option value="">Selecione o procedimento</option>
             <option>Design personalizado com Henna</option>
-            <option>Design Tradicional</option>
+            <option>Design personalizado</option>
             <option>Brow Up</option>
             <option>Brow Lamination</option>
+            <option>Lash Lifting</option>
             <option>Henna Lips</option>
             <option>Combo Lábios</option>
             <option>Vibromassagem Terapêutica</option>
@@ -94,6 +95,16 @@ button{width:100%;border:0;border-radius:8px;padding:15px;font-size:16px;font-we
               <div class="field full"><label>Seus lábios costumam ficar muito ressecados no dia a dia?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="labiosRessecados" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="labiosRessecados" value="Não"><span>Não</span></label></div></div>
               <div class="field full lipPigmentOnly"><label>Qual efeito final deseja para a cor dos lábios?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="efeitoLabios" value="Natural — avermelhado com aspecto saudável"><span>Natural — avermelhado com aspecto saudável</span></label><label class="check"><input type="radio" data-name="efeitoLabios" value="Mais marcado — efeito batom"><span>Mais marcado — efeito batom</span></label><label class="check"><input type="radio" data-name="efeitoLabios" value="Efeito japonês — centro do lábio mais avermelhado"><span>Efeito japonês — centro do lábio mais avermelhado</span></label></div></div>
               <div class="field full"><label>Observações sobre os lábios</label><textarea data-field="obsLabios" placeholder="Conte algo importante sobre sua saúde ou preferência de cor."></textarea></div>
+            </div>
+          </div>
+          <div class="section lashQuestions" style="display:none">
+            <div class="sectionTitle">SAÚDE E SEGURANÇA — LASH LIFTING</div>
+            <div class="grid">
+              <div class="field full"><label>Você possui histórico de alergia a algum componente dos produtos (como tioglicolato, peróxidos, cola, silicone, látex ou tintas)?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="alergiaComponentesLash" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="alergiaComponentesLash" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Você já fez Lash Lifting ou extensão de cílios antes? Se sim, teve alguma reação alérgica, coceira ou vermelhidão?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="historicoLash" value="Sim, tive reação"><span>Sim, tive reação</span></label><label class="check"><input type="radio" data-name="historicoLash" value="Sim, sem reação"><span>Sim, sem reação</span></label><label class="check"><input type="radio" data-name="historicoLash" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Você sofre de alguma condição ou infecção ocular atual (como conjuntivite, blefarite, terçol/hordéolo, olho seco severo ou ceratite)?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="condicaoOcularLash" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="condicaoOcularLash" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Passou por alguma cirurgia nos olhos ou na região das pálpebras nos últimos 6 meses?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="cirurgiaOcularLash" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="cirurgiaOcularLash" value="Não"><span>Não</span></label></div></div>
+              <div class="field full"><label>Usa lentes de contato?</label><div class="checkgrid"><label class="check"><input type="radio" data-name="lentesContatoLash" value="Sim"><span>Sim</span></label><label class="check"><input type="radio" data-name="lentesContatoLash" value="Não"><span>Não</span></label></div><div class="small">Se usar lentes de contato, retire-as antes do procedimento.</div></div>
             </div>
           </div>
           <div class="section browQuestions" style="display:none">
@@ -195,12 +206,14 @@ function setupProcedureCard(card,index){
     const v=select.value;const questions=card.querySelector(".procedureQuestions");
     const lips=["Henna Lips","Combo Lábios","SPA Labial"].includes(v);
     card.querySelector(".lipPigmentOnly").style.display=(v==="Henna Lips"||v==="Combo Lábios")?"block":"none";
-    const brows=["Design personalizado com Henna","Design Tradicional","Brow Up","Brow Lamination"].includes(v);
+    const brows=["Design personalizado com Henna","Design personalizado","Brow Up","Brow Lamination"].includes(v);
+    const lash=v==="Lash Lifting";
+    card.querySelector(".lashQuestions").style.display=lash?"block":"none";
     card.querySelector(".lipQuestions").style.display=lips?"block":"none";
     card.querySelector(".browQuestions").style.display=brows?"block":"none";
     card.querySelectorAll(".browUpOnly").forEach(el=>el.style.display=v==="Brow Up"?"block":"none");
     card.querySelectorAll(".browNotUp").forEach(el=>el.style.display=v==="Brow Up"?"none":"block");
-    questions.style.display=(lips||brows)?"block":"none";
+    questions.style.display=(lips||brows||lash)?"block":"none";
     // Evita duplicar o mesmo procedimento em mais de um campo.
     procedureNames.forEach((id,i)=>{if(i!==index&&val(id)===v&&v){select.value="";questions.style.display="none";card.querySelector(".lipQuestions").style.display="none";card.querySelector(".browQuestions").style.display="none";alert("Cada procedimento pode ser escolhido apenas uma vez.");}});
   });
@@ -214,8 +227,9 @@ function collectProcedures(){
  return [...container.querySelectorAll(".procedureCard")].map((card,i)=>{
   const procedimento=card.querySelector(".procedureSelect").value;if(!procedimento)return null;
   const d={numero:i+1,procedimento};
+  if(procedimento==="Lash Lifting")Object.assign(d,{alergiaComponentesLash:readRadioIn(card,"alergiaComponentesLash"),historicoLash:readRadioIn(card,"historicoLash"),condicaoOcularLash:readRadioIn(card,"condicaoOcularLash"),cirurgiaOcularLash:readRadioIn(card,"cirurgiaOcularLash"),lentesContatoLash:readRadioIn(card,"lentesContatoLash")});
   if(["Henna Lips","Combo Lábios","SPA Labial"].includes(procedimento))Object.assign(d,{alergiaHennaLabios:readRadioIn(card,"alergiaHennaLabios"),herpesLabial:readRadioIn(card,"herpesLabial"),lesaoLabios:readRadioIn(card,"lesaoLabios"),preenchimentoRecente:readRadioIn(card,"preenchimentoRecente"),tempoPreenchimento:readFieldIn(card,"tempoPreenchimento"),acidosLabios:readRadioIn(card,"acidosLabios"),roacutan:readRadioIn(card,"roacutan"),mordeLabios:readRadioIn(card,"mordeLabios"),labiosRessecados:readRadioIn(card,"labiosRessecados"),efeitoLabios:(["Henna Lips","Combo Lábios"].includes(procedimento)?readRadioIn(card,"efeitoLabios"):"Não se aplica ao SPA Labial"),obsLabios:readFieldIn(card,"obsLabios")});
-  if(["Design personalizado com Henna","Design Tradicional","Brow Up","Brow Lamination"].includes(procedimento))Object.assign(d,{procedimentoInvasivoBrow:procedimento==="Brow Up"?readRadioIn(card,"procedimentoInvasivoBrow"):"Não se aplica",microOuLaserBrow:procedimento==="Brow Up"?readRadioIn(card,"microOuLaserBrow"):"Não se aplica",tempoMicroOuLaserBrow:procedimento==="Brow Up"?readFieldIn(card,"tempoMicroOuLaserBrow"):"Não se aplica",jaHennaTintura:procedimento==="Brow Up"?"Não se aplica":readRadioIn(card,"jaHennaTintura"),reacaoHennaTintura:procedimento==="Brow Up"?"Não se aplica":readRadioIn(card,"reacaoHennaTintura"),detalheReacaoHenna:procedimento==="Brow Up"?"Não se aplica":readFieldIn(card,"detalheReacaoHenna"),alteracaoSobrancelhas:readChecksIn(card,"alteracaoSobrancelhas"),historicoDensidadeBrow:procedimento==="Brow Up"?readRadioIn(card,"historicoDensidadeBrow"):"Não se aplica",quedaOutrasAreasBrow:procedimento==="Brow Up"?readRadioIn(card,"quedaOutrasAreasBrow"):"Não se aplica",pinçaExcessivaBrow:procedimento==="Brow Up"?readRadioIn(card,"pinçaExcessivaBrow"):"Não se aplica",queloidesBrow:readRadioIn(card,"queloidesBrow"),observacoesSobrancelhas:readFieldIn(card,"observacoesSobrancelhas")});
+  if(["Design personalizado com Henna","Design personalizado","Brow Up","Brow Lamination"].includes(procedimento))Object.assign(d,{procedimentoInvasivoBrow:procedimento==="Brow Up"?readRadioIn(card,"procedimentoInvasivoBrow"):"Não se aplica",microOuLaserBrow:procedimento==="Brow Up"?readRadioIn(card,"microOuLaserBrow"):"Não se aplica",tempoMicroOuLaserBrow:procedimento==="Brow Up"?readFieldIn(card,"tempoMicroOuLaserBrow"):"Não se aplica",jaHennaTintura:procedimento==="Brow Up"?"Não se aplica":readRadioIn(card,"jaHennaTintura"),reacaoHennaTintura:procedimento==="Brow Up"?"Não se aplica":readRadioIn(card,"reacaoHennaTintura"),detalheReacaoHenna:procedimento==="Brow Up"?"Não se aplica":readFieldIn(card,"detalheReacaoHenna"),alteracaoSobrancelhas:readChecksIn(card,"alteracaoSobrancelhas"),historicoDensidadeBrow:procedimento==="Brow Up"?readRadioIn(card,"historicoDensidadeBrow"):"Não se aplica",quedaOutrasAreasBrow:procedimento==="Brow Up"?readRadioIn(card,"quedaOutrasAreasBrow"):"Não se aplica",pinçaExcessivaBrow:procedimento==="Brow Up"?readRadioIn(card,"pinçaExcessivaBrow"):"Não se aplica",queloidesBrow:readRadioIn(card,"queloidesBrow"),observacoesSobrancelhas:readFieldIn(card,"observacoesSobrancelhas")});
   return d;
  }).filter(Boolean);
 }
@@ -262,6 +276,13 @@ function makePdf(d){
   section("DADOS DA CLIENTE"); row("Nascimento",d.nascimento);
   for(const proc of d.procedimentos){
     section(`PROCEDIMENTO ${proc.numero}: ${proc.procedimento}`);
+    if(proc.alergiaComponentesLash!==undefined){
+      row("Alergia a componentes dos produtos",proc.alergiaComponentesLash);
+      row("Experiência anterior com Lash Lifting/extensão e reações",proc.historicoLash);
+      row("Condição ou infecção ocular atual",proc.condicaoOcularLash);
+      row("Cirurgia ocular/pálpebras nos últimos 6 meses",proc.cirurgiaOcularLash);
+      row("Uso de lentes de contato",proc.lentesContatoLash);
+    }
     if(proc.alergiaHennaLabios!==undefined){
       row("Alergia a henna/pigmentos/tinturas/esmaltes",proc.alergiaHennaLabios);row("Tendência a herpes labial",proc.herpesLabial);row("Lesão/descamação/ferida ativa",proc.lesaoLabios);row("Preenchimento/micropigmentação recente",proc.preenchimentoRecente);row("Tempo desde procedimento",proc.tempoPreenchimento);row("Uso de ácidos",proc.acidosLabios);row("Roacutan/últimos 6 meses",proc.roacutan);row("Morde/puxa pelinhas",proc.mordeLabios);row("Lábios ressecados",proc.labiosRessecados);row("Efeito desejado",proc.efeitoLabios);row("Observações dos lábios",proc.obsLabios);
     }
